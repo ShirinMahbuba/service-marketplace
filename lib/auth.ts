@@ -15,10 +15,4 @@ export const MOCK_USERS: SessionUser[] = [
   { id: 'user-001', name: 'Fatema Begum', email: 'fatema@user.com', role: 'END_USER' },
 ];
 
-export const ROLE_REDIRECTS: Record<Role, string> = {
-  ADMIN: '/admin/dashboard',
-  VENDOR: '/vendor/dashboard',
-  END_USER: '/marketplace',
-};
-
 export const SESSION_COOKIE = 'session_user';

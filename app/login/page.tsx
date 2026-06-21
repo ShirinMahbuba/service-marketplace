@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ROLE_REDIRECTS, ROLE_LABELS, ROLE_BADGE_COLORS } from '@/lib/constants';
 
 const DEMO_USERS = [
   {
@@ -12,7 +13,6 @@ const DEMO_USERS = [
     avatar: '🛡️',
     desc: 'Manage all users and platform settings',
     color: 'from-purple-500 to-purple-700',
-    badge: 'bg-purple-100 text-purple-700',
   },
   {
     id: 'vendor-001',
@@ -22,7 +22,6 @@ const DEMO_USERS = [
     avatar: '🧹',
     desc: 'List services and manage incoming jobs',
     color: 'from-emerald-500 to-emerald-700',
-    badge: 'bg-emerald-100 text-emerald-700',
   },
   {
     id: 'vendor-002',
@@ -32,7 +31,6 @@ const DEMO_USERS = [
     avatar: '🔧',
     desc: 'Expert plumbing — view orders and services',
     color: 'from-emerald-500 to-emerald-700',
-    badge: 'bg-emerald-100 text-emerald-700',
   },
   {
     id: 'user-001',
@@ -42,21 +40,10 @@ const DEMO_USERS = [
     avatar: '👩',
     desc: 'Browse services and book appointments',
     color: 'from-sky-500 to-sky-700',
-    badge: 'bg-sky-100 text-sky-700',
   },
 ];
 
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Admin',
-  VENDOR: 'Vendor',
-  END_USER: 'End-User',
-};
 
-const ROLE_REDIRECTS: Record<string, string> = {
-  ADMIN: '/admin/dashboard',
-  VENDOR: '/vendor/dashboard',
-  END_USER: '/marketplace',
-};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -107,7 +94,7 @@ export default function LoginPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-white font-semibold text-sm">{user.name}</span>
-                    <span className={`badge ${user.badge} text-xs`}>{ROLE_LABELS[user.role]}</span>
+                    <span className={`badge ${ROLE_BADGE_COLORS[user.role]} text-xs`}>{ROLE_LABELS[user.role]}</span>
                   </div>
                   <p className="text-sky-300 text-xs mt-0.5">{user.desc}</p>
                   <p className="text-gray-400 text-xs mt-0.5">{user.email}</p>
