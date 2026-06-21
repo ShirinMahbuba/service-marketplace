@@ -25,21 +25,33 @@ export default function VendorServicesClient({
   const [services, setServices] = useState(initialServices);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState({ name: '', description: '', price: '', category: 'Cleaning' });
 
   const handleAdd = async () => {
-    if (!form.name || !form.description || !form.price) return;
+    if (!form.name || !form.description || !form.price) {
+      setError('Please fill in all fields.');
+      return;
+    }
+    setError('');
     setSaving(true);
-    const res = await fetch('/api/vendor/services', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, price: Number(form.price), vendorProfileId }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setServices([data.service, ...services]);
-      setForm({ name: '', description: '', price: '', category: 'Cleaning' });
-      setShowForm(false);
+    try {
+      const res = await fetch('/api/vendor/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, price: Number(form.price), vendorProfileId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setServices([data.service, ...services]);
+        setForm({ name: '', description: '', price: '', category: 'Cleaning' });
+        setShowForm(false);
+      } else {
+        const data = await res.json().catch(() => ({ error: 'Failed to create service' }));
+        setError(data.error || 'Failed to create service. Please try again.');
+      }
+    } catch {
+      setError('Network error. Please check your connection and try again.');
     }
     setSaving(false);
   };
@@ -57,6 +69,11 @@ export default function VendorServicesClient({
       {showForm && (
         <div className="card mb-6 border-sky-200 bg-sky-50">
           <h2 className="font-semibold text-gray-800 mb-4">New Service</h2>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {error}
+            </div>
+          )}
           <div className="space-y-3">
             <input
               type="text"

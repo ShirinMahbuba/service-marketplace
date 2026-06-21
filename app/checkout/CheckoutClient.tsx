@@ -23,6 +23,7 @@ export default function CheckoutClient({ service, userId }: { service: Service; 
   const [step, setStep] = useState<Step>('review');
   const [payMethod, setPayMethod] = useState<PayMethod>('bKash');
   const [transactionId, setTransactionId] = useState('');
+  const [error, setError] = useState('');
 
   const PAY_METHODS: { id: PayMethod; label: string; icon: string; color: string }[] = [
     { id: 'bKash', label: 'bKash', icon: '📱', color: 'border-pink-300 bg-pink-50 text-pink-700' },
@@ -31,20 +32,30 @@ export default function CheckoutClient({ service, userId }: { service: Service; 
   ];
 
   const handlePayment = async () => {
+    setError('');
     setStep('processing');
     // Simulate 2-second processing
-    await new Promise((res) => setTimeout(res, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const res = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, serviceId: service.id, amount: service.price, paymentMethod: payMethod }),
-    });
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, serviceId: service.id, amount: service.price, paymentMethod: payMethod }),
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      setTransactionId(data.transaction.id);
-      setStep('success');
+      if (res.ok) {
+        const data = await res.json();
+        setTransactionId(data.transaction.id);
+        setStep('success');
+      } else {
+        const data = await res.json().catch(() => ({ error: 'Payment processing failed' }));
+        setError(data.error || 'Payment processing failed. Please try again.');
+        setStep('review');
+      }
+    } catch {
+      setError('Network error. Please check your connection and try again.');
+      setStep('review');
     }
   };
 
@@ -175,6 +186,12 @@ export default function CheckoutClient({ service, userId }: { service: Service; 
             <p className="text-xs text-amber-700">🧪 <strong>Sandbox Mode:</strong> This is a simulated payment — no real money will be charged.</p>
           </div>
         </div>
+
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
         <button
           onClick={handlePayment}

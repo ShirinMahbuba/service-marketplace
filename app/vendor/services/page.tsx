@@ -1,14 +1,11 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { getSessionUser } from '@/lib/session';
 import Navbar from '@/components/Navbar';
 import VendorServicesClient from './VendorServicesClient';
 
 export default async function VendorServicesPage() {
-  const cookieStore = cookies();
-  const sessionCookie = cookieStore.get('session_user');
-  if (!sessionCookie) redirect('/login');
-  const user = JSON.parse(decodeURIComponent(sessionCookie.value));
+  const user = getSessionUser();
 
   const vendorProfile = await prisma.vendorProfile.findUnique({
     where: { userId: user.id },

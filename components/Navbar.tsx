@@ -38,7 +38,11 @@ export default function Navbar({ user }: NavbarProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // Proceed to login page even if the logout request fails
+    }
     router.push('/login');
   };
 
