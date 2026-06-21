@@ -15,10 +15,8 @@ interface Service {
 const CATEGORIES = ['Cleaning', 'Plumbing', 'AC Repair', 'Electrical', 'Painting', 'Carpentry'];
 
 export default function VendorServicesClient({
-  vendorProfileId,
   services: initialServices,
 }: {
-  vendorProfileId: string;
   services: Service[];
 }) {
   const router = useRouter();
@@ -33,7 +31,7 @@ export default function VendorServicesClient({
     const res = await fetch('/api/vendor/services', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, price: Number(form.price), vendorProfileId }),
+      body: JSON.stringify({ ...form, price: Number(form.price) }),
     });
     if (res.ok) {
       const data = await res.json();

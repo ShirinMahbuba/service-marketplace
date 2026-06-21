@@ -1,8 +1,8 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import { getSession } from '@/lib/session';
 
 const ROLE_BADGES: Record<string, string> = {
   ADMIN: 'bg-purple-100 text-purple-700',
@@ -11,10 +11,8 @@ const ROLE_BADGES: Record<string, string> = {
 };
 
 export default async function AdminUsersPage() {
-  const cookieStore = cookies();
-  const sessionCookie = cookieStore.get('session_user');
-  if (!sessionCookie) redirect('/login');
-  const user = JSON.parse(decodeURIComponent(sessionCookie.value));
+  const user = await getSession();
+  if (!user || user.role !== 'ADMIN') redirect('/login');
 
   const users = await prisma.user.findMany({
     include: {

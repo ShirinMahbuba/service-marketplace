@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getSessionFromRequest } from '@/lib/session';
 
 const PROTECTED_ROUTES: Record<string, string[]> = {
   '/admin': ['ADMIN'],
@@ -9,38 +10,34 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
   '/orders': ['END_USER'],
 };
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow login page and API routes
   if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
     return NextResponse.next();
   }
 
-  const sessionCookie = request.cookies.get('session_user');
+  const user = await getSessionFromRequest(request);
 
-  if (!sessionCookie) {
+  if (!user) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  let user: { role: string } | null = null;
-  try {
-    user = JSON.parse(decodeURIComponent(sessionCookie.value));
-  } catch {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  // Check role-based access
   for (const [route, allowedRoles] of Object.entries(PROTECTED_ROUTES)) {
     if (pathname.startsWith(route)) {
-      if (!user || !allowedRoles.includes(user.role)) {
-        // Redirect to their proper home
+      if (!allowedRoles.includes(user.role)) {
+        if (pathname.startsWith('/api/')) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
         const roleRedirects: Record<string, string> = {
           ADMIN: '/admin/dashboard',
           VENDOR: '/vendor/dashboard',
           END_USER: '/marketplace',
         };
-        const redirect = roleRedirects[user?.role || ''] || '/login';
+        const redirect = roleRedirects[user.role] || '/login';
         return NextResponse.redirect(new URL(redirect, request.url));
       }
     }

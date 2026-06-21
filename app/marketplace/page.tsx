@@ -1,14 +1,12 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import MarketplaceClient from './MarketplaceClient';
 import Navbar from '@/components/Navbar';
+import { getSession } from '@/lib/session';
 
 export default async function MarketplacePage() {
-  const cookieStore = cookies();
-  const sessionCookie = cookieStore.get('session_user');
-  if (!sessionCookie) redirect('/login');
-  const user = JSON.parse(decodeURIComponent(sessionCookie.value));
+  const user = await getSession();
+  if (!user) redirect('/login');
 
   const services = await prisma.service.findMany({
     where: { isActive: true },

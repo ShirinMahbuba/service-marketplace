@@ -18,7 +18,7 @@ interface Service {
 type Step = 'review' | 'payment' | 'processing' | 'success';
 type PayMethod = 'bKash' | 'Nagad' | 'Card';
 
-export default function CheckoutClient({ service, userId }: { service: Service; userId: string }) {
+export default function CheckoutClient({ service }: { service: Service }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>('review');
   const [payMethod, setPayMethod] = useState<PayMethod>('bKash');
@@ -38,7 +38,7 @@ export default function CheckoutClient({ service, userId }: { service: Service; 
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, serviceId: service.id, amount: service.price, paymentMethod: payMethod }),
+      body: JSON.stringify({ serviceId: service.id, paymentMethod: payMethod }),
     });
 
     if (res.ok) {
