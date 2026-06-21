@@ -16,6 +16,16 @@ prisma/dev.db-journal
 .env.local
 .env*.local
 
+# Build
+dist/
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Coverage
+coverage/
+
+# SWC
+.swc/
+%APPDATA%/

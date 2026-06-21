@@ -1,13 +1,35 @@
-# 🏠 ServiceHub BD — Multi-Vendor Service Marketplace
+# ServiceHub BD — Multi-Vendor Service Marketplace
 
-A full-stack service marketplace platform built with Next.js 14, Prisma (SQLite), and Tailwind CSS. Inspired by Sheba.xyz.
+A full-stack service marketplace platform with a separated frontend and backend architecture. Inspired by Sheba.xyz.
 
 ## Tech Stack
 
 - **Frontend:** Next.js 14 (App Router), Tailwind CSS
-- **Backend:** Next.js API Routes
-- **Database:** Prisma ORM + SQLite
+- **Backend:** Express.js, Prisma ORM + SQLite
 - **Auth:** Mock session-cookie RBAC (3 roles)
+
+---
+
+## Project Structure
+
+```
+service-marketplace/
+├── frontend/          # Next.js client application
+│   ├── app/           # App Router pages & layouts
+│   ├── components/    # Shared UI components
+│   ├── lib/           # Client-side utilities
+│   ├── middleware.ts   # Route protection middleware
+│   └── package.json   # Frontend dependencies
+├── backend/           # Express.js API server
+│   ├── src/
+│   │   ├── server.ts       # Express entry point
+│   │   ├── routes/         # API route handlers
+│   │   └── lib/            # Prisma client & auth utilities
+│   ├── prisma/             # Schema & seed data
+│   └── package.json        # Backend dependencies
+├── setup.sh           # One-command project setup
+└── package.json       # Root workspace scripts
+```
 
 ---
 
@@ -17,15 +39,41 @@ A full-stack service marketplace platform built with Next.js 14, Prisma (SQLite)
 # 1. Clone and enter the project
 cd service-marketplace
 
-# 2. Run setup (installs deps, creates DB, seeds data)
+# 2. Run setup (installs deps for both, creates DB, seeds data)
 bash setup.sh
 
-# 3. Start development server
-npm run dev
+# 3. Start backend (Terminal 1)
+cd backend && npm run dev
 
-# 4. Open the app
+# 4. Start frontend (Terminal 2)
+cd frontend && npm run dev
+
+# 5. Open the app
 # http://localhost:3000/login
 ```
+
+---
+
+## Running Independently
+
+### Backend only
+```bash
+cd backend
+npm install
+npx prisma generate
+npx prisma db push
+npm run db:seed
+npm run dev          # runs on http://localhost:5000
+```
+
+### Frontend only
+```bash
+cd frontend
+npm install
+npm run dev          # runs on http://localhost:3000
+```
+
+> The frontend proxies `/api/*` requests to the backend at `http://localhost:5000`.
 
 ---
 
@@ -33,41 +81,59 @@ npm run dev
 
 | Role     | Name                    | Email                     |
 |----------|-------------------------|---------------------------|
-| 🛡️ Admin  | Admin User              | admin@marketplace.com     |
-| 🧹 Vendor | Rahim Cleaning Services | rahim@vendor.com          |
-| 🔧 Vendor | Karim Plumbing Co.      | karim@vendor.com          |
-| ❄️ Vendor | Jamal AC & Appliance    | jamal@vendor.com          |
-| 👩 User   | Fatema Begum            | fatema@user.com           |
+| Admin    | Admin User              | admin@marketplace.com     |
+| Vendor   | Rahim Cleaning Services | rahim@vendor.com          |
+| Vendor   | Karim Plumbing Co.      | karim@vendor.com          |
+| Vendor   | Jamal AC & Appliance    | jamal@vendor.com          |
+| User     | Fatema Begum            | fatema@user.com           |
+
+---
+
+## API Endpoints (Backend)
+
+| Method | Endpoint                    | Description                    |
+|--------|-----------------------------|--------------------------------|
+| POST   | `/api/auth/login`           | Login and set session cookie   |
+| POST   | `/api/auth/logout`          | Logout and clear cookie        |
+| GET    | `/api/services`             | List all active services       |
+| GET    | `/api/services/:id`         | Get single service             |
+| POST   | `/api/checkout`             | Create a transaction           |
+| POST   | `/api/vendor/services`      | Create a new service           |
+| GET    | `/api/vendor/profile`       | Get vendor profile + services  |
+| GET    | `/api/vendor/services-list` | Get vendor services list       |
+| GET    | `/api/admin/stats`          | Admin dashboard statistics     |
+| GET    | `/api/admin/users`          | List all users                 |
+| GET    | `/api/transactions`         | Get user transactions          |
+| GET    | `/api/health`               | Health check                   |
 
 ---
 
 ## Features
 
-### 🔐 RBAC Authentication
+### RBAC Authentication
 - Cookie-based mock session system
-- Global `middleware.ts` protects routes by role
+- Global middleware protects routes by role
 - 3 distinct roles: Admin, Vendor, End-User
 
-### 👩 End-User
+### End-User
 - Browse searchable service catalog at `/marketplace`
-- Filter by category (Cleaning, Plumbing, AC Repair…)
+- Filter by category (Cleaning, Plumbing, AC Repair)
 - Checkout with mock payment gateway (bKash / Nagad / Card)
-- 2-second simulated payment processing
 - View personal order history at `/orders`
 
-### 🏪 Vendor
+### Vendor
 - Dashboard at `/vendor/dashboard` with stats (orders, earnings)
 - List and manage services at `/vendor/services`
 - View all received orders from customers
 
-### 🛡️ Admin
+### Admin
 - Platform overview dashboard at `/admin/dashboard`
 - View all registered users at `/admin/users`
 - See all transactions across vendors
 
 ---
 
-## Database Schema (ERD)
+## Database Schema
 
 ```
 User (id, name, email, role)
@@ -78,58 +144,3 @@ User (id, name, email, role)
   │                             │
   └──[END_USER]── Transaction (id, userId, serviceId, amount, status, paymentMethod)
 ```
-
----
-
-## Project Structure
-
-```
-service-marketplace/
-├── app/
-│   ├── login/page.tsx          # Role-based login page
-│   ├── marketplace/            # Service catalog (End-User)
-│   ├── checkout/               # Checkout + payment modal
-│   ├── orders/page.tsx         # Order history (End-User)
-│   ├── vendor/
-│   │   ├── dashboard/          # Vendor stats + orders received
-│   │   └── services/           # Manage listings
-│   ├── admin/
-│   │   ├── dashboard/          # Platform overview
-│   │   └── users/              # All users table
-│   └── api/
-│       ├── auth/               # Login / logout endpoints
-│       ├── checkout/           # Process + save transactions
-│       └── vendor/services/    # Add new services
-├── components/
-│   └── Navbar.tsx              # Shared navigation
-├── lib/
-│   ├── prisma.ts               # DB client singleton
-│   └── auth.ts                 # Role/session types
-├── middleware.ts               # Route protection
-└── prisma/
-    ├── schema.prisma           # DB models
-    └── seed.ts                 # Sample data
-```
-
----
-
-## Vibe Coding Workflow
-
-This project was built using AI-assisted development ("vibe coding"):
-
-1. **Prompt Structure:** Each feature was prompted as a unit — schema first, then API, then UI.
-2. **AI Successes:** Prisma schema generation, Tailwind layouts, API route boilerplate.
-3. **Manual Interventions:** Cookie encoding/decoding for middleware compatibility, Prisma singleton pattern for Next.js hot reload, TypeScript type alignment between server and client components.
-
----
-
-## Scripts
-
-```bash
-npm run dev          # Start dev server
-npm run build        # Production build
-npm run db:push      # Apply schema to DB
-npm run db:seed      # Insert sample data
-npm run db:studio    # Open Prisma Studio (GUI)
-```
-## Demo Vedio Link:
