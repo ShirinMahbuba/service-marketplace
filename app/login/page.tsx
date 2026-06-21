@@ -61,16 +61,27 @@ const ROLE_REDIRECTS: Record<string, string> = {
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   const handleLogin = async (user: typeof DEMO_USERS[0]) => {
+    setError('');
     setLoading(user.id);
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user),
-    });
-    if (res.ok) {
-      router.push(ROLE_REDIRECTS[user.role]);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user),
+      });
+      if (res.ok) {
+        router.push(ROLE_REDIRECTS[user.role]);
+      } else {
+        const data = await res.json().catch(() => ({ error: 'Login failed' }));
+        setError(data.error || 'Login failed. Please try again.');
+        setLoading(null);
+      }
+    } catch {
+      setError('Network error. Please check your connection and try again.');
+      setLoading(null);
     }
   };
 
@@ -87,6 +98,12 @@ export default function LoginPage() {
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <h2 className="text-white font-semibold text-lg mb-1">Demo Login</h2>
           <p className="text-sky-200 text-sm mb-6">Click any account to log in instantly</p>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-lg text-sm text-red-200">
+              {error}
+            </div>
+          )}
 
           <div className="space-y-3">
             {DEMO_USERS.map((user) => (
