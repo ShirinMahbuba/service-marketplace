@@ -132,3 +132,4 @@ npm run db:push      # Apply schema to DB
 npm run db:seed      # Insert sample data
 npm run db:studio    # Open Prisma Studio (GUI)
 ```
+## Demo Vedio Link:
