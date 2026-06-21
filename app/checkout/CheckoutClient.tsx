@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatCurrency } from '@/lib/format';
 
 interface Service {
   id: string;
@@ -18,17 +19,18 @@ interface Service {
 type Step = 'review' | 'payment' | 'processing' | 'success';
 type PayMethod = 'bKash' | 'Nagad' | 'Card';
 
+const PAY_METHODS: { id: PayMethod; label: string; icon: string; color: string }[] = [
+  { id: 'bKash', label: 'bKash', icon: '📱', color: 'border-pink-300 bg-pink-50 text-pink-700' },
+  { id: 'Nagad', label: 'Nagad', icon: '🟠', color: 'border-orange-300 bg-orange-50 text-orange-700' },
+  { id: 'Card', label: 'Credit/Debit Card', icon: '💳', color: 'border-sky-300 bg-sky-50 text-sky-700' },
+];
+
 export default function CheckoutClient({ service, userId }: { service: Service; userId: string }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>('review');
   const [payMethod, setPayMethod] = useState<PayMethod>('bKash');
   const [transactionId, setTransactionId] = useState('');
 
-  const PAY_METHODS: { id: PayMethod; label: string; icon: string; color: string }[] = [
-    { id: 'bKash', label: 'bKash', icon: '📱', color: 'border-pink-300 bg-pink-50 text-pink-700' },
-    { id: 'Nagad', label: 'Nagad', icon: '🟠', color: 'border-orange-300 bg-orange-50 text-orange-700' },
-    { id: 'Card', label: 'Credit/Debit Card', icon: '💳', color: 'border-sky-300 bg-sky-50 text-sky-700' },
-  ];
 
   const handlePayment = async () => {
     setStep('processing');
@@ -72,7 +74,7 @@ export default function CheckoutClient({ service, userId }: { service: Service; 
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Amount Paid</span>
-              <span className="font-bold text-green-700">৳{service.price.toLocaleString()}</span>
+              <span className="font-bold text-green-700">{formatCurrency(service.price)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Payment</span>
@@ -132,13 +134,13 @@ export default function CheckoutClient({ service, userId }: { service: Service; 
               <p className="text-xs text-gray-400 mt-1">🏪 {service.vendorProfile.user.name}</p>
             </div>
             <div className="text-right">
-              <p className="text-xl font-bold text-sky-700">৳{service.price.toLocaleString()}</p>
+              <p className="text-xl font-bold text-sky-700">{formatCurrency(service.price)}</p>
               <span className="text-xs text-gray-400">incl. tax</span>
             </div>
           </div>
           <div className="border-t border-gray-100 mt-4 pt-4 flex justify-between">
             <span className="font-semibold text-gray-700">Total</span>
-            <span className="text-xl font-bold text-gray-900">৳{service.price.toLocaleString()}</span>
+            <span className="text-xl font-bold text-gray-900">{formatCurrency(service.price)}</span>
           </div>
         </div>
 
@@ -180,15 +182,9 @@ export default function CheckoutClient({ service, userId }: { service: Service; 
           onClick={handlePayment}
           className="w-full btn-primary py-4 text-base"
         >
-          Pay ৳{service.price.toLocaleString()} via {payMethod} →
+          Pay {formatCurrency(service.price)} via {payMethod} →
         </button>
       </div>
     </div>
   );
 }
-
-const PAY_METHODS: { id: string; label: string; icon: string; color: string }[] = [
-  { id: 'bKash', label: 'bKash', icon: '📱', color: 'border-pink-300 bg-pink-50 text-pink-700' },
-  { id: 'Nagad', label: 'Nagad', icon: '🟠', color: 'border-orange-300 bg-orange-50 text-orange-700' },
-  { id: 'Card', label: 'Credit/Debit Card', icon: '💳', color: 'border-sky-300 bg-sky-50 text-sky-700' },
-];

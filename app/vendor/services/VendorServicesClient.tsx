@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatCurrency } from '@/lib/format';
 
 interface Service {
   id: string;
@@ -45,7 +46,7 @@ export default function VendorServicesClient({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">My Services</h1>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm">
@@ -114,7 +115,7 @@ export default function VendorServicesClient({
                     <p className="text-xs text-gray-500 mt-0.5">{service.description}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-bold text-sky-700">৳{service.price.toLocaleString()}</p>
+                    <p className="font-bold text-sky-700">{formatCurrency(service.price)}</p>
                     <span className="badge bg-sky-100 text-sky-700 text-xs mt-1">{service.category}</span>
                   </div>
                 </div>
@@ -123,6 +124,6 @@ export default function VendorServicesClient({
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 }

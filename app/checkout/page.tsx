@@ -1,18 +1,15 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { getSessionUser } from '@/lib/session';
+import PageLayout from '@/components/PageLayout';
 import CheckoutClient from './CheckoutClient';
-import Navbar from '@/components/Navbar';
 
 export default async function CheckoutPage({
   searchParams,
 }: {
   searchParams: { serviceId?: string };
 }) {
-  const cookieStore = cookies();
-  const sessionCookie = cookieStore.get('session_user');
-  if (!sessionCookie) redirect('/login');
-  const user = JSON.parse(decodeURIComponent(sessionCookie.value));
+  const user = getSessionUser();
 
   if (!searchParams.serviceId) redirect('/marketplace');
 
@@ -26,9 +23,8 @@ export default async function CheckoutPage({
   if (!service) redirect('/marketplace');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar user={user} />
+    <PageLayout user={user}>
       <CheckoutClient service={service} userId={user.id} />
-    </div>
+    </PageLayout>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatCurrency } from '@/lib/format';
 
 const CATEGORY_ICONS: Record<string, string> = {
   Cleaning: '🧹',
@@ -53,7 +54,7 @@ export default function MarketplaceClient({ services }: { services: Service[] })
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
       {/* Hero */}
       <div className="bg-gradient-to-br from-sky-600 to-sky-800 rounded-2xl p-8 mb-8 text-white">
         <h1 className="text-3xl font-bold mb-2">Find Trusted Home Services</h1>
@@ -125,7 +126,7 @@ export default function MarketplaceClient({ services }: { services: Service[] })
                   </div>
                   <div className="flex items-center justify-between mt-auto">
                     <div>
-                      <span className="text-lg font-bold text-sky-700">৳{service.price.toLocaleString()}</span>
+                      <span className="text-lg font-bold text-sky-700">{formatCurrency(service.price)}</span>
                     </div>
                     <button
                       onClick={() => router.push(`/checkout?serviceId=${service.id}`)}
@@ -140,6 +141,6 @@ export default function MarketplaceClient({ services }: { services: Service[] })
           })}
         </div>
       )}
-    </div>
+    </>
   );
 }

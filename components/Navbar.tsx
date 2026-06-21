@@ -2,22 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ROLE_LABELS, ROLE_BADGE_COLORS } from '@/lib/constants';
 
 interface NavbarProps {
   user: { name: string; role: string; email: string };
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Admin',
-  VENDOR: 'Vendor',
-  END_USER: 'User',
-};
 
-const ROLE_COLORS: Record<string, string> = {
-  ADMIN: 'bg-purple-100 text-purple-700',
-  VENDOR: 'bg-emerald-100 text-emerald-700',
-  END_USER: 'bg-sky-100 text-sky-700',
-};
 
 const NAV_LINKS: Record<string, { href: string; label: string }[]> = {
   ADMIN: [
@@ -69,7 +60,7 @@ export default function Navbar({ user }: NavbarProps) {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-sm font-semibold text-gray-800">{user.name}</span>
-              <span className={`badge text-xs ${ROLE_COLORS[user.role]}`}>
+              <span className={`badge text-xs ${ROLE_BADGE_COLORS[user.role]}`}>
                 {ROLE_LABELS[user.role]}
               </span>
             </div>
